@@ -1,0 +1,6 @@
+[
+  { "type": "DL", "number": "KA01 1234 2005", "dob": "1980-05-12", "issuedYear": 2005, "status": "found", "holderName": "Sample Name" },
+  { "type": "DL", "number": "KA01 9999 2005", "dob": "1978-11-02", "issuedYear": 2005, "status": "not_found" },
+  { "type": "RC", "number": "KA05 AB 1234", "registeredYear": 2024, "status": "not_found", "reason": "recently_registered" },
+  { "type": "RC", "number": "KA01 CD 4567", "registeredYear": 2022, "status": "found", "holderName": "Sample Owner" }
+]
