@@ -8,7 +8,7 @@ button { cursor: pointer; }
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; line-height: 1; }
 .site-shell { min-height: 100vh; display: flex; flex-direction: column; }
 .site-header { position: sticky; top: 0; z-index: 20; height: 64px; display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-bottom: 1px solid #c2c6d3; background: #fff; color: #003e7a; }
-.site-brand { font-size: 24px; line-height: 32px; font-weight: 700; letter-spacing: -.01em; }
+.site-brand { color: inherit; font-size: 24px; line-height: 32px; font-weight: 700; letter-spacing: -.01em; text-decoration: none; }.site-brand:hover { text-decoration: underline; }
 .header-back { display: grid; place-items: center; width: 48px; height: 48px; border: 0; border-radius: 999px; background: transparent; color: #003e7a; font-size: 25px; }.header-back:hover { background: #f3f4f5; }
 .site-main { flex: 1; display: flex; width: min(100%, 1200px); margin: 0 auto; padding: 24px 16px; align-items: center; }
 .site-footer { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 24px 16px; border-top: 1px solid #c2c6d3; background: #fff; color: #424751; text-align: center; font-size: 14px; line-height: 20px; }.site-footer strong { color: #003e7a; font-size: 20px; line-height: 28px; }.site-footer nav { display: flex; gap: 24px; }.site-footer a { color: inherit; text-decoration: none; font-weight: 600; }.site-footer a:hover { color: #003e7a; text-decoration: underline; }.site-footer small { color: #727783; font-size: 12px; }

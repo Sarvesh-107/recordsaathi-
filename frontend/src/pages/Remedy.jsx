@@ -25,7 +25,7 @@ export default function Remedy() {
     setLoading(true);
     setError('');
     try {
-      const result = await generateRemedy({ recordDetails: state.details, diagnosis: state.diagnosis, applicant });
+      const result = await generateRemedy({ recordDetails: state.details, diagnosis: state.diagnosis, answers: state.answers, applicant });
       setGenerated(result);
     } catch (requestError) {
       setError(requestError.message);

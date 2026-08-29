@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export default function SiteHeader() {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export default function SiteHeader() {
   return (
     <header className="site-header">
       {hasBackButton && <button className="header-back" aria-label="Go back" onClick={goBack}>←</button>}
-      <span className="site-brand">RecordSaathi</span>
+      <Link className="site-brand" to="/">RecordSaathi</Link>
     </header>
   );
 }

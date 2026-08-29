@@ -28,7 +28,7 @@ const QUESTIONS = [
     helper: 'A small mismatch in a number, date, or spelling can prevent a match.',
     options: [
       { value: 'exact_match', label: 'Yes, I checked them', description: 'The number and personal details match the document.', icon: 'fact_check' },
-      { value: 'possible_mismatch', label: 'I am not sure', description: 'There may be a typo, different spelling, or old address.', icon: 'edit_note' },
+      { value: 'details_do_not_match', label: 'No, some details do not match', description: 'There is a typo, different spelling, or other difference.', icon: 'edit_note' },
     ],
   },
 ];
