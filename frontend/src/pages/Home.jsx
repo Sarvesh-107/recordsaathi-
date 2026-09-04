@@ -18,6 +18,10 @@ export default function Home() {
           <span className="material-symbols-outlined service-icon" aria-hidden="true">directions_car</span>
           <span><strong>Search my Vehicle (RC)</strong><small>Check a vehicle record</small></span>
         </button>
+        <button className="choice-card" onClick={() => navigate('/status')}>
+          <span className="material-symbols-outlined service-icon" aria-hidden="true">assignment</span>
+          <span><strong>Track an existing request</strong><small>Check your saved request status</small></span>
+        </button>
       </div>
       <div className="notice"><span className="material-symbols-outlined" aria-hidden="true">info</span><p>This tool identifies common reasons for missing digital records and provides guidance on rectifying them with the appropriate authorities.</p></div>
     </section>

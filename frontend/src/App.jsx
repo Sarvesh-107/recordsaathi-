@@ -5,6 +5,9 @@ import NotFound from './pages/NotFound';
 import Diagnostic from './pages/Diagnostic';
 import Remedy from './pages/Remedy';
 import Status from './pages/Status';
+import Help from './pages/Help';
+import Support from './pages/Support';
+import Privacy from './pages/Privacy';
 import SiteHeader from './components/SiteHeader';
 import SiteFooter from './components/SiteFooter';
 
@@ -20,6 +23,9 @@ export default function App() {
           <Route path="/diagnostic" element={<Diagnostic />} />
           <Route path="/remedy" element={<Remedy />} />
           <Route path="/status" element={<Status />} />
+          <Route path="/help" element={<Help />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

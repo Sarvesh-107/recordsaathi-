@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DiagnosticQuestion from '../components/DiagnosticQuestion';
+import JourneyProgress from '../components/JourneyProgress';
 import { runDiagnostic } from '../api/client';
 
 const QUESTIONS = [
@@ -71,6 +72,7 @@ export default function Diagnostic() {
 
   return (
     <section className="page diagnostic-page">
+      <JourneyProgress step={3} />
       <div className="diagnostic-label"><span className="diagnostic-dot" />Diagnostic mode</div>
       <div className="progress-label"><span>Diagnostic progress</span><strong>Step {step + 1} of {QUESTIONS.length}</strong></div>
       <div className="progress-track"><span style={{ width: `${((step + 1) / QUESTIONS.length) * 100}%` }} /></div>

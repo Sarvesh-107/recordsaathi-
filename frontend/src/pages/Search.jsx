@@ -3,6 +3,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import SearchForm from '../components/SearchForm';
 import { searchRecord } from '../api/client';
 import MockBadge from '../components/MockBadge';
+import JourneyProgress from '../components/JourneyProgress';
+
+const SLOW_REQUEST_DELAY_MS = 3000;
 
 export default function Search() {
   const navigate = useNavigate();
@@ -10,10 +13,12 @@ export default function Search() {
   const type = searchParams.get('type') === 'RC' ? 'RC' : 'DL';
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [slow, setSlow] = useState(false);
 
   async function handleSearch(details) {
     setLoading(true);
     setError('');
+    const slowTimer = setTimeout(() => setSlow(true), SLOW_REQUEST_DELAY_MS);
     try {
       const result = await searchRecord(details);
       if (result.record.status === 'found') {
@@ -24,6 +29,8 @@ export default function Search() {
     } catch (requestError) {
       setError(requestError.message);
     } finally {
+      clearTimeout(slowTimer);
+      setSlow(false);
       setLoading(false);
     }
   }
@@ -31,8 +38,8 @@ export default function Search() {
   return (
     <section className="page search-page">
       <MockBadge />
+      <JourneyProgress step={1} />
       <div className="page-heading">
-        <p className="step-indicator">Step 1 of 5</p>
         <h1>Record Search</h1>
         <p>Find documents not listed on the primary portal.</p>
       </div>
@@ -41,6 +48,9 @@ export default function Search() {
         <button className={type === 'RC' ? 'active' : ''} onClick={() => navigate('/search?type=RC')}>Vehicle (RC)</button>
       </div>
       <SearchForm type={type} onSubmit={handleSearch} loading={loading} />
+      {loading && slow && (
+        <p className="loading-copy">Connecting to the records service — this can take up to a minute on first load.</p>
+      )}
       {error && <p className="error-message" role="alert">{error}</p>}
     </section>
   );
