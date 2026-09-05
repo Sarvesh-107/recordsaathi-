@@ -9,12 +9,23 @@ import statusRouter from './routes/status.js';
 const app = express();
 const port = Number(process.env.PORT) || 4000;
 
-const allowedOrigins = (process.env.FRONTEND_ORIGIN || 'http://localhost:5173')
-  .split(',')
-  .map((origin) => origin.trim());
+const allowedOrigins = [
+  'https://recordsaathi.vercel.app',
+  /\.vercel\.app$/,
+  /^http:\/\/localhost(:\d+)?$/,
+  ...(process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN.split(',').map((origin) => origin.trim()) : []),
+];
+
+function isAllowedOrigin(origin) {
+  const normalized = origin.replace(/\/$/, '');
+  return allowedOrigins.some((allowed) => (
+    allowed instanceof RegExp ? allowed.test(normalized) : allowed === normalized
+  ));
+}
+
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    if (!origin || isAllowedOrigin(origin)) return callback(null, true);
     return callback(new Error('This origin is not allowed to access the API.'));
   },
 }));

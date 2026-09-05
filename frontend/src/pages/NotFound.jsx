@@ -28,7 +28,6 @@ export default function NotFound() {
   if (found) {
     return (
       <section className="page result-page">
-        <JourneyProgress step={2} />
         <div className="result-icon success"><span className="material-symbols-outlined" aria-hidden="true">check</span></div>
         <p className="step-indicator">Record found</p>
         <h1>Your {recordType} record is available</h1>

@@ -47,7 +47,7 @@ export default function Remedy() {
 
   function bookAppointment() {
     sessionStorage.setItem('recordSaathiGeneratedRemedy', JSON.stringify(generated));
-    navigate('/status', { state: { referenceId: generated.referenceId, diagnosis: state.diagnosis, generated } });
+    navigate('/status', { state: { referenceId: generated.referenceId, submittedAt: new Date().toISOString(), diagnosis: state.diagnosis, generated } });
   }
 
   if (!generated) {
