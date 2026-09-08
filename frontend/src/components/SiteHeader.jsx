@@ -1,9 +1,12 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../i18n/LanguageContext';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function SiteHeader() {
   const navigate = useNavigate();
   const { pathname, state } = useLocation();
+  const { t } = useLanguage();
   const hasBackButton = pathname !== '/';
   const recordType = state?.details?.type === 'RC' ? 'RC' : 'DL';
 
@@ -15,8 +18,9 @@ export default function SiteHeader() {
 
   return (
     <header className="site-header">
-      {hasBackButton && <button className="header-back" aria-label="Go back" onClick={goBack}>←</button>}
-      <Link className="site-brand" to="/">RecordSaathi</Link>
+      {hasBackButton && <button className="header-back" aria-label={t('common.goBack')} onClick={goBack}>←</button>}
+      <Link className="site-brand" to="/">{t('common.appName')}</Link>
+      <LanguageSwitcher />
     </header>
   );
 }

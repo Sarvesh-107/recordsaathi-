@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const DOB_SHAPE = /^(?:\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|\d{1,2}[-/.]\d{1,2}[-/.]\d{4})$/;
 
 export default function SearchForm({ type, onSubmit, loading }) {
+  const { t } = useLanguage();
   const [number, setNumber] = useState('');
   const [dob, setDob] = useState('');
   const [errors, setErrors] = useState({});
@@ -13,13 +15,13 @@ export default function SearchForm({ type, onSubmit, loading }) {
     const nextErrors = {};
     if (!number.trim()) {
       nextErrors.number = isDl
-        ? 'Please enter your driving licence number.'
-        : 'Please enter your vehicle registration number.';
+        ? t('searchForm.errorEmptyDl')
+        : t('searchForm.errorEmptyRc');
     }
     if (isDl && !dob.trim()) {
-      nextErrors.dob = 'Please enter your date of birth.';
+      nextErrors.dob = t('searchForm.errorEmptyDob');
     } else if (isDl && !DOB_SHAPE.test(dob.trim())) {
-      nextErrors.dob = 'Please enter a valid date.';
+      nextErrors.dob = t('searchForm.errorInvalidDate');
     }
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
@@ -43,13 +45,13 @@ export default function SearchForm({ type, onSubmit, loading }) {
 
   return (
     <form className="form-card" onSubmit={submit} noValidate>
-      <label htmlFor="number">{isDl ? 'Driving licence number' : 'Vehicle registration number'}</label>
+      <label htmlFor="number">{isDl ? t('searchForm.dlNumberLabel') : t('searchForm.rcNumberLabel')}</label>
       <input
         id="number"
         name="number"
         value={number}
         onChange={updateNumber}
-        placeholder={isDl ? 'e.g. KA01 9999 2005' : 'e.g. KA05 AB 1234'}
+        placeholder={isDl ? t('searchForm.dlPlaceholder') : t('searchForm.rcPlaceholder')}
         autoCapitalize="characters"
         aria-describedby={errors.number ? 'number-error' : undefined}
         aria-invalid={Boolean(errors.number)}
@@ -57,7 +59,7 @@ export default function SearchForm({ type, onSubmit, loading }) {
       {errors.number && <p id="number-error" className="field-error" role="alert">{errors.number}</p>}
       {isDl ? (
         <>
-          <label htmlFor="dob">Date of birth</label>
+          <label htmlFor="dob">{t('searchForm.dobLabel')}</label>
           <input
             id="dob"
             name="dob"
@@ -65,22 +67,22 @@ export default function SearchForm({ type, onSubmit, loading }) {
             inputMode="numeric"
             value={dob}
             onChange={updateDob}
-            placeholder="DD-MM-YYYY (e.g. 12-05-1980)"
+            placeholder={t('searchForm.dobPlaceholder')}
             aria-describedby={errors.dob ? 'dob-error' : 'dob-help'}
             aria-invalid={Boolean(errors.dob)}
           />
           {errors.dob && <p id="dob-error" className="field-error" role="alert">{errors.dob}</p>}
-          <span id="dob-help" className="field-help">Use DD-MM-YYYY. YYYY-MM-DD is also accepted.</span>
-          <p className="field-help sample-hint"><strong>Try a sample record:</strong> KA01 1234 2005, DOB 12-05-1980</p>
+          <span id="dob-help" className="field-help">{t('searchForm.dobHelp')}</span>
+          <p className="field-help sample-hint"><strong>{t('searchForm.sampleLabel')}</strong> {t('searchForm.dlSample')}</p>
         </>
       ) : (
         <>
-          <p className="field-help">Enter your vehicle registration number to check this demo record.</p>
-          <p className="field-help sample-hint"><strong>Try a sample record:</strong> KA01 CD 4567</p>
+          <p className="field-help">{t('searchForm.rcHelp')}</p>
+          <p className="field-help sample-hint"><strong>{t('searchForm.sampleLabel')}</strong> {t('searchForm.rcSample')}</p>
         </>
       )}
       <button className="primary-button" type="submit" disabled={loading}>
-        {loading ? 'Checking record…' : 'Check record'}
+        {loading ? t('searchForm.checkingRecord') : t('searchForm.checkRecord')}
       </button>
     </form>
   );

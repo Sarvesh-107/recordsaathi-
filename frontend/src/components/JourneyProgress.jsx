@@ -1,10 +1,15 @@
-const STAGES = ['Search', 'Not Found', 'Diagnostic', 'Letter', 'Status'];
+import { useLanguage } from '../i18n/LanguageContext';
+
+const STAGE_LABEL_KEYS = ['stageSearch', 'stageNotFound', 'stageDiagnostic', 'stageLetter', 'stageStatus'];
 
 export default function JourneyProgress({ step }) {
+  const { t } = useLanguage();
+  const total = STAGE_LABEL_KEYS.length;
+
   return (
     <div className="journey-progress">
-      <p className="progress-label"><strong>Step {step} of {STAGES.length} · {STAGES[step - 1]}</strong></p>
-      <div className="progress-track"><span style={{ width: `${(step / STAGES.length) * 100}%` }} /></div>
+      <p className="progress-label"><strong>{t('diagnostic.stepOf', { current: step, total })} · {t(`journey.${STAGE_LABEL_KEYS[step - 1]}`)}</strong></p>
+      <div className="progress-track"><span style={{ width: `${(step / total) * 100}%` }} /></div>
     </div>
   );
 }

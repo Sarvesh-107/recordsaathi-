@@ -2,11 +2,21 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import MockBadge from '../components/MockBadge';
 import JourneyProgress from '../components/JourneyProgress';
+import { useLanguage } from '../i18n/LanguageContext';
 import { generateRemedy } from '../api/client';
+
+function deriveCaseType(answers) {
+  const values = new Set((answers || []).map((answer) => answer.value));
+  if (values.has('mobile_changed')) return 'mobile_mismatch';
+  if (values.has('before_2010') && values.has('renewed_since_2010') && values.has('exact_match')) return 'investigation';
+  if (values.has('before_2010') && values.has('exact_match')) return 'legacy_digitization';
+  return 'generic';
+}
 
 export default function Remedy() {
   const navigate = useNavigate();
   const { state } = useLocation();
+  const { t, language } = useLanguage();
   const [applicant, setApplicant] = useState({ fullName: '', rtoOffice: '', contact: '' });
   const [generated, setGenerated] = useState(() => {
     if (state?.generated) return state.generated;
@@ -14,9 +24,10 @@ export default function Remedy() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [confirmed, setConfirmed] = useState(false);
 
   if (!state?.details || !state?.diagnosis) {
-    return <section className="page"><h1>Complete the diagnostic first</h1><button className="primary-button" onClick={() => navigate('/')}>Go to home</button></section>;
+    return <section className="page"><h1>{t('remedy.completeFirst')}</h1><button className="primary-button" onClick={() => navigate('/')}>{t('common.goToHome')}</button></section>;
   }
 
   function update(field, value) { setApplicant((current) => ({ ...current, [field]: value })); }
@@ -26,7 +37,7 @@ export default function Remedy() {
     setLoading(true);
     setError('');
     try {
-      const result = await generateRemedy({ recordDetails: state.details, diagnosis: state.diagnosis, answers: state.answers, applicant });
+      const result = await generateRemedy({ recordDetails: state.details, diagnosis: state.diagnosis, answers: state.answers, applicant, language });
       setGenerated(result);
     } catch (requestError) {
       setError(requestError.message);
@@ -47,24 +58,24 @@ export default function Remedy() {
 
   function bookAppointment() {
     sessionStorage.setItem('recordSaathiGeneratedRemedy', JSON.stringify(generated));
-    navigate('/status', { state: { referenceId: generated.referenceId, submittedAt: new Date().toISOString(), diagnosis: state.diagnosis, generated } });
+    navigate('/status', { state: { referenceId: generated.referenceId, submittedAt: new Date().toISOString(), diagnosis: state.diagnosis, caseType: deriveCaseType(state.answers), generated } });
   }
 
   if (!generated) {
     return (
       <section className="page remedy-page">
         <JourneyProgress step={4} />
-        <h1>Prepare your RTO request letter</h1>
-        <p className="remedy-intro">We&apos;ll use your diagnostic guidance to draft a letter you can review before taking it to the RTO.</p>
+        <h1>{t('remedy.prepareHeading')}</h1>
+        <p className="remedy-intro">{t('remedy.intro')}</p>
         <div className="diagnosis-summary"><strong>{state.diagnosis.likelyCause}</strong><p>{state.diagnosis.summary}</p></div>
         <form className="form-card" onSubmit={createLetter}>
-          <label htmlFor="fullName">Your full name</label><input id="fullName" value={applicant.fullName} onChange={(event) => update('fullName', event.target.value)} required />
-          <p className="field-help">So the RTO can verify your identity.</p>
-          <label htmlFor="rtoOffice">RTO office or city</label><input id="rtoOffice" value={applicant.rtoOffice} onChange={(event) => update('rtoOffice', event.target.value)} placeholder="e.g. Bengaluru Central RTO" required />
-          <p className="field-help">So the letter reaches the right RTO office.</p>
-          <label htmlFor="contact">Mobile number or email</label><input id="contact" value={applicant.contact} onChange={(event) => update('contact', event.target.value)} required />
-          <p className="field-help">So the RTO can contact you about your request.</p>
-          <button className="primary-button" disabled={loading}>{loading ? 'Generating letter…' : 'Generate my letter'} <em className="inline-demo">Demo</em></button>
+          <label htmlFor="fullName">{t('remedy.fullNameLabel')}</label><input id="fullName" value={applicant.fullName} onChange={(event) => update('fullName', event.target.value)} required />
+          <p className="field-help">{t('remedy.fullNameHelp')}</p>
+          <label htmlFor="rtoOffice">{t('remedy.rtoOfficeLabel')}</label><input id="rtoOffice" value={applicant.rtoOffice} onChange={(event) => update('rtoOffice', event.target.value)} placeholder={t('remedy.rtoOfficePlaceholder')} required />
+          <p className="field-help">{t('remedy.rtoOfficeHelp')}</p>
+          <label htmlFor="contact">{t('remedy.contactLabel')}</label><input id="contact" value={applicant.contact} onChange={(event) => update('contact', event.target.value)} required />
+          <p className="field-help">{t('remedy.contactHelp')}</p>
+          <button className="primary-button" disabled={loading}>{loading ? t('remedy.generatingLetter') : t('remedy.generateLetter')} <em className="inline-demo">{t('common.demoBadge')}</em></button>
         </form>
         {error && <p className="error-message" role="alert">{error}</p>}
       </section>
@@ -74,9 +85,18 @@ export default function Remedy() {
   return (
     <section className="remedy-output">
       <JourneyProgress step={4} />
-      <div className="remedy-heading"><h1>Remedy Letter Generated</h1><p>Review the generated letter below. You can download a copy or proceed to book an RTO appointment.</p></div>
-      <article className="letter-card"><MockBadge /><p className="letter-subject"><strong>Subject:</strong> {generated.letter.subject}</p><div className="letter-text">{generated.letter.letter}</div></article>
-      <div className="letter-actions"><button className="secondary-button" onClick={downloadLetter}><span className="material-symbols-outlined" aria-hidden="true">download</span> Download copy <em>Demo</em></button><button className="primary-button" onClick={bookAppointment}><span className="material-symbols-outlined" aria-hidden="true">calendar_month</span> Book RTO appointment <em>Demo</em></button></div>
+      <div className="remedy-heading"><h1>{t('remedy.letterHeading')}</h1><p>{t('remedy.letterSubtitle')}</p></div>
+      <article className="letter-card">
+        <MockBadge />
+        <p className="letter-subject"><strong>{t('remedy.subjectLabel')}</strong> {generated.letter.subject}</p>
+        <div className="letter-text">{generated.letter.letter}</div>
+        <p className="ai-disclaimer"><span className="material-symbols-outlined" aria-hidden="true">info</span>{t('remedy.aiDisclaimer')}</p>
+      </article>
+      <label className="confirm-checkbox">
+        <input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} />
+        {t('remedy.confirmReviewed')}
+      </label>
+      <div className="letter-actions"><button className="secondary-button" onClick={downloadLetter} disabled={!confirmed}><span className="material-symbols-outlined" aria-hidden="true">download</span> {t('remedy.downloadCopy')} <em>{t('common.demoBadge')}</em></button><button className="primary-button" onClick={bookAppointment} disabled={!confirmed}><span className="material-symbols-outlined" aria-hidden="true">calendar_month</span> {t('remedy.bookAppointment')} <em>{t('common.demoBadge')}</em></button></div>
     </section>
   );
 }
