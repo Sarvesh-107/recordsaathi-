@@ -15,25 +15,25 @@ function deriveCaseType(answers) {
 
 const REMEDY_CACHE_KEY = 'recordSaathiGeneratedRemedy';
 
-function remedySignature(details, answers) {
-  return JSON.stringify({ details: details || null, answers: answers || null });
+function remedySignature(details, answers, language) {
+  return JSON.stringify({ details: details || null, answers: answers || null, language: language || null });
 }
 
-function readCachedRemedy(details, answers) {
+function readCachedRemedy(details, answers, language) {
   try {
     const raw = sessionStorage.getItem(REMEDY_CACHE_KEY);
     if (!raw) return null;
     const entry = JSON.parse(raw);
-    if (!entry || entry.signature !== remedySignature(details, answers)) return null;
+    if (!entry || entry.signature !== remedySignature(details, answers, language)) return null;
     return entry.generated || null;
   } catch {
     return null;
   }
 }
 
-function writeCachedRemedy(details, answers, generated) {
+function writeCachedRemedy(details, answers, language, generated) {
   try {
-    sessionStorage.setItem(REMEDY_CACHE_KEY, JSON.stringify({ signature: remedySignature(details, answers), generated }));
+    sessionStorage.setItem(REMEDY_CACHE_KEY, JSON.stringify({ signature: remedySignature(details, answers, language), generated }));
   } catch {
     // sessionStorage unavailable (e.g. private browsing) — reload-survival is best-effort only
   }
@@ -46,7 +46,7 @@ export default function Remedy() {
   const [applicant, setApplicant] = useState({ fullName: '', rtoOffice: '', contact: '' });
   const [generated, setGenerated] = useState(() => {
     if (state?.generated) return state.generated;
-    return readCachedRemedy(state?.details, state?.answers);
+    return readCachedRemedy(state?.details, state?.answers, language);
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -65,7 +65,7 @@ export default function Remedy() {
     try {
       const result = await generateRemedy({ recordDetails: state.details, diagnosis: state.diagnosis, answers: state.answers, applicant, language });
       setGenerated(result);
-      writeCachedRemedy(state.details, state.answers, result);
+      writeCachedRemedy(state.details, state.answers, language, result);
     } catch (requestError) {
       setError(requestError.message);
     } finally {
