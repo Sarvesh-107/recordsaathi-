@@ -13,6 +13,32 @@ function deriveCaseType(answers) {
   return 'generic';
 }
 
+const REMEDY_CACHE_KEY = 'recordSaathiGeneratedRemedy';
+
+function remedySignature(details, answers) {
+  return JSON.stringify({ details: details || null, answers: answers || null });
+}
+
+function readCachedRemedy(details, answers) {
+  try {
+    const raw = sessionStorage.getItem(REMEDY_CACHE_KEY);
+    if (!raw) return null;
+    const entry = JSON.parse(raw);
+    if (!entry || entry.signature !== remedySignature(details, answers)) return null;
+    return entry.generated || null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedRemedy(details, answers, generated) {
+  try {
+    sessionStorage.setItem(REMEDY_CACHE_KEY, JSON.stringify({ signature: remedySignature(details, answers), generated }));
+  } catch {
+    // sessionStorage unavailable (e.g. private browsing) — reload-survival is best-effort only
+  }
+}
+
 export default function Remedy() {
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -20,7 +46,7 @@ export default function Remedy() {
   const [applicant, setApplicant] = useState({ fullName: '', rtoOffice: '', contact: '' });
   const [generated, setGenerated] = useState(() => {
     if (state?.generated) return state.generated;
-    try { return JSON.parse(sessionStorage.getItem('recordSaathiGeneratedRemedy') || 'null'); } catch { return null; }
+    return readCachedRemedy(state?.details, state?.answers);
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -39,6 +65,7 @@ export default function Remedy() {
     try {
       const result = await generateRemedy({ recordDetails: state.details, diagnosis: state.diagnosis, answers: state.answers, applicant, language });
       setGenerated(result);
+      writeCachedRemedy(state.details, state.answers, result);
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -57,7 +84,6 @@ export default function Remedy() {
   }
 
   function bookAppointment() {
-    sessionStorage.setItem('recordSaathiGeneratedRemedy', JSON.stringify(generated));
     navigate('/status', { state: { referenceId: generated.referenceId, submittedAt: new Date().toISOString(), diagnosis: state.diagnosis, caseType: deriveCaseType(state.answers), generated } });
   }
 
